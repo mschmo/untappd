@@ -6,7 +6,7 @@ CLIENT_ID = ''
 CLIENT_SECRET = ''
 
 simple_endpoints = ['thepub', 'thepub/local', 'checkin/recent', 
-                    'beer/trending', 'checkin/add', 'user/pending', 
+                    'beer/trending', 'user/pending', 
                     'notifications', 'heartbeat']
 
 simple_endpoints_with_requires = [('user/wishlist/add', 'bid'), 
@@ -18,8 +18,10 @@ single_param_endpoints = ['user/checkins', 'venue/checkins', 'beer/checkins',
                           'brewery/checkins', 'brewery/info', 'beer/info',
                           'venue/info', 'checkin/view', 'user/info', 
                           'user/badges', 'user/friends', 'user/wishlist',
-                          'user/beers', 'checkin/toast', 'friend/accept',
-                          'friend/reject', 'friend/remove', 'friend/request']
+                          'user/beers', 'checkin/toast', 'friend/remove', 
+                          'friend/request']
+
+POSTS = ['checkin/add', 'friend/accept', 'friend/reject']
 
 class Untappd:
 
