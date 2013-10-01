@@ -9,4 +9,4 @@ Python wrapper for the Untappd.com API.
 
 # TODO
 * Add authentication with OAuth to allow authorized calls
-* Add POST calls
+* Limit code duplication
