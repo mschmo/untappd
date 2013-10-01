@@ -9,10 +9,10 @@ simple_endpoints = ['thepub', 'thepub/local', 'checkin/recent',
                     'beer/trending', 'checkin/add', 'user/pending', 
                     'notifications', 'heartbeat']
 
-simple_endpoints_with_requires = [('user_wishlist_add', 'bid'), 
-                                  ('user_wishlist_delete', 'bid'),
-                                  ('search_beer', 'q'),
-                                  ('search_brewery', 'q')]
+simple_endpoints_with_requires = [('user/wishlist/add', 'bid'), 
+                                  ('user/wishlist/delete', 'bid'),
+                                  ('search/beer', 'q'),
+                                  ('search/brewery', 'q')]
 
 single_param_endpoints = ['user/checkins', 'venue/checkins', 'beer/checkins', 
                           'brewery/checkins', 'brewery/info', 'beer/info',
@@ -65,6 +65,9 @@ class Untappd:
         for endpoint in single_param_endpoints:
             fun = Untappd.__make_singlearg_endpoint_fun(endpoint)
             setattr(Untappd, endpoint.replace('/', '_'), fun)
+        for endpoint in simple_endpoints_with_requires:
+            fun = Untappd.__make_simple_with_requires_fun(endpoint)
+            setattr(Untappd, endpoint[0].replace('/', '_'), fun)
 
     @classmethod
     def authenticate():
