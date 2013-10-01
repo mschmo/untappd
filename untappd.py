@@ -1,10 +1,5 @@
 import requests
 
-DEFAULT_BASE_URI = 'http://api.untappd.com/v4'
-BASE_URI = ''
-CLIENT_ID = ''
-CLIENT_SECRET = ''
-
 simple_endpoints = ['thepub', 'thepub/local', 'checkin/recent', 
                     'beer/trending', 'user/pending', 
                     'notifications', 'heartbeat']
@@ -25,52 +20,46 @@ POSTS = ['checkin/add', 'friend/accept', 'friend/reject']
 
 class Untappd:
 
-    ACCESS_TOKEN = None
+    access_token = None
+    base_uri = 'http://api.untappd.com/v4'
+    client_id = ''
+    client_secret = ''
 
-    @staticmethod
-    def __make_simple_endpoint_fun(name):
-        @staticmethod
+    def __init__(self, client_id, client_secret, baseuri=base_uri):
+        self.client_id = client_id
+        self.client_secret = client_secret
+        self.base_uri = baseuri
+        for endpoint in simple_endpoints:
+            fun = self.__make_simple_endpoint_fun(endpoint)
+            setattr(self, endpoint.replace('/', '_'), fun)
+        for endpoint in single_param_endpoints:
+            fun = self.__make_singlearg_endpoint_fun(endpoint)
+            setattr(self, endpoint.replace('/', '_'), fun)
+        for endpoint in simple_endpoints_with_requires:
+            fun = self.__make_simple_with_requires_fun(endpoint)
+            setattr(self, endpoint[0].replace('/', '_'), fun)
+
+    def __make_simple_endpoint_fun(self, name):
         def _function(options={}):
-            return Untappd._get('/' + name, options)
+            return self._get('/' + name, options)
         return _function
 
-    @staticmethod
-    def __make_singlearg_endpoint_fun(name):
-        @staticmethod
+    def __make_singlearg_endpoint_fun(self, name):
         def _function(id, options={}):
-            return Untappd._get('/' + name + '/' + id, options)
+            return self._get('/' + name + '/' + id, options)
         return _function
 
-    @staticmethod
-    def __make_simple_with_requires_fun(name_and_required):
+    def __make_simple_with_requires_fun(self, name_and_required):
         name, required_param = name_and_required
-        @staticmethod
         def _function(required_attribute, options={}):
             options.update({required_param: required_attribute})
-            return Untappd._get('/' + name, options)
+            return self._get('/' + name, options)
         return _function
 
-    @staticmethod
-    def _get(request, options):
-        options.update({'client_id': Untappd.CLIENT_ID,
-                        'client_secret': Untappd.CLIENT_SECRET})
-        return requests.get(Untappd.BASE_URI + request, params=options).json()
+    def _get(self, request, options):
+        options.update({'client_id': self.client_id,
+                        'client_secret': self.client_secret})
+        return requests.get(self.base_uri + request, params=options).json()
 
-    @staticmethod
-    def configure(client_id, client_secret, baseuri=DEFAULT_BASE_URI):
-        Untappd.CLIENT_ID = client_id
-        Untappd.CLIENT_SECRET = client_secret
-        Untappd.BASE_URI = baseuri
-        for endpoint in simple_endpoints:
-            fun = Untappd.__make_simple_endpoint_fun(endpoint)
-            setattr(Untappd, endpoint.replace('/', '_'), fun)
-        for endpoint in single_param_endpoints:
-            fun = Untappd.__make_singlearg_endpoint_fun(endpoint)
-            setattr(Untappd, endpoint.replace('/', '_'), fun)
-        for endpoint in simple_endpoints_with_requires:
-            fun = Untappd.__make_simple_with_requires_fun(endpoint)
-            setattr(Untappd, endpoint[0].replace('/', '_'), fun)
-
-    @classmethod
     def authenticate():
         pass
