@@ -38,6 +38,8 @@ class Untappd:
     def __make_get_endpoint_fun(self, name):
         def _function(id=None, options={}):
             request = '{}'.format(name)
+            if type(id) == dict and not options:
+                options, id = id, options
             if id:
                 request += '/{}'.format(id)
             return self.get(request, options)
@@ -53,7 +55,6 @@ class Untappd:
         data = {
             'client_id': self.client_id,
             'client_secret': self.client_secret,
-            'grant_type': 'authorization_code',
             'redirect_url': self.redirect_url,
             'code': code
         }
@@ -70,12 +71,13 @@ class Untappd:
                         'client_secret': self.client_secret})
         return requests.post(self.base_url + request, params=options).json()
 
-    def auth_url(self, redirect_url):
-        self.redirect_url = redirect_url
+    def auth_url(self, redirect_url=None):
+        if redirect_url:
+            self.redirect_url = redirect_url
         params = {
             'client_id': self.client_id,
             'response_type': 'code',
-            'redirect_url': redirect_url
+            'redirect_url': self.redirect_url
         }
         return '{}?{}'.format(self.authorize_url, urlencode(params))
 
