@@ -13,4 +13,3 @@ Python wrapper for the Untappd.com API.
 
 # Dependencies
 * [Requests](http://docs.python-requests.org/en/latest/)
-* [Requests-OAuthlib](https://github.com/requests/requests-oauthlib)
