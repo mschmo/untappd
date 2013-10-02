@@ -1,4 +1,5 @@
 import requests
+from urllib import urlencode
 
 get_endpoints = ['thepub', 'thepub/local', 'checkin/recent',
                  'beer/trending', 'user/pending', 'notifications',
@@ -14,15 +15,18 @@ post_endpoints = ['checkin/add', 'friend/accept', 'friend/reject']
 
 
 class Untappd:
-    base_uri = 'http://api.untappd.com/v4/'
-    authorize_uri = 'https://untappd.com/oauth/authenticate/'
     client_id = ''
     client_secret = ''
+    base_url = 'http://api.untappd.com/v4/'
+    authorize_url = 'https://untappd.com/oauth/authenticate/'
+    token_url = 'https://untappd.com/oauth/authorize/'
+    access_token = None
+    redirect_url = None
 
-    def __init__(self, client_id, client_secret, baseuri=base_uri):
+    def __init__(self, client_id, client_secret, redirect_url=None):
         self.client_id = client_id
         self.client_secret = client_secret
-        self.base_uri = baseuri
+        self.redirect_url = redirect_url
 
         for endpoint in get_endpoints:
             fun = self.__make_get_endpoint_fun(endpoint)
@@ -45,20 +49,37 @@ class Untappd:
             return self.post(request, options)
         return _function
 
+    def _get_token(self, code):
+        data = {
+            'client_id': self.client_id,
+            'client_secret': self.client_secret,
+            'grant_type': 'authorization_code',
+            'redirect_url': self.redirect_url,
+            'code': code
+        }
+        resp = requests.post(self.token_url, data=data).json()
+        return resp['response']['access_token']
+
     def get(self, request, options):
         options.update({'client_id': self.client_id,
                         'client_secret': self.client_secret})
-        return requests.get(self.base_uri + request, params=options).json()
+        return requests.get(self.base_url + request, params=options).json()
 
     def post(self, request, options):
         options.update({'client_id': self.client_id,
                         'client_secret': self.client_secret})
-        return requests.post(self.base_uri + request, params=options).json()
+        return requests.post(self.base_url + request, params=options).json()
 
-    def authenticate(self, redirect_url):
+    def auth_url(self, redirect_url):
+        self.redirect_url = redirect_url
         params = {
             'client_id': self.client_id,
             'response_type': 'code',
             'redirect_url': redirect_url
         }
-        return requests.get(self.authorize_uri, params=params)
+        return '{}?{}'.format(self.authorize_url, urlencode(params))
+
+    def set_token(self, code):
+        access_token = self._get_token(code)
+        self.access_token = access_token
+

@@ -8,7 +8,7 @@ Python wrapper for the Untappd.com API.
 * [Register](https://untappd.com/api/register) for a client ID and client secret
 
 # TODO
-* Add authentication with OAuth to allow authorized calls
+* Test authentication with OAuth to allow authorized calls
 * Limit code duplication
 
 # Dependencies
