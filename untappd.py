@@ -1,20 +1,18 @@
 import requests
 
-simple_endpoints = ['thepub', 'thepub/local', 'checkin/recent',
-                    'beer/trending', 'user/pending',
-                    'notifications', 'heartbeat']
+get_endpoints = ['thepub', 'thepub/local', 'checkin/recent',
+                 'beer/trending', 'user/pending', 'notifications', 
+                 'heartbeat', 'user/checkins', 'venue/checkins', 
+                 'beer/checkins', 'brewery/checkins', 'brewery/info', 
+                 'beer/info', 'venue/info', 'checkin/view', 
+                 'user/info', 'user/badges', 'user/friends', 
+                 'user/wishlist', 'user/beers', 'checkin/toast', 
+                 'friend/remove', 'friend/request']
 
-simple_endpoints_with_requires = [('user/wishlist/add', 'bid'),
-                                  ('user/wishlist/delete', 'bid'),
-                                  ('search/beer', 'q'),
-                                  ('search/brewery', 'q')]
-
-single_param_endpoints = ['user/checkins', 'venue/checkins', 'beer/checkins',
-                          'brewery/checkins', 'brewery/info', 'beer/info',
-                          'venue/info', 'checkin/view', 'user/info',
-                          'user/badges', 'user/friends', 'user/wishlist',
-                          'user/beers', 'checkin/toast', 'friend/remove',
-                          'friend/request']
+endpoints_with_requires = [('user/wishlist/add', 'bid'),
+                           ('user/wishlist/delete', 'bid'),
+                           ('search/beer', 'q'),
+                           ('search/brewery', 'q')]
 
 post_endpoints = ['checkin/add', 'friend/accept', 'friend/reject']
 
@@ -22,7 +20,7 @@ post_endpoints = ['checkin/add', 'friend/accept', 'friend/reject']
 class Untappd:
 
     access_token = None
-    base_uri = 'http://api.untappd.com/v4'
+    base_uri = 'http://api.untappd.com/v4/'
     authorize_uri = 'https://untappd.com/oauth/authenticate/'
     redirect_uri = ''
     client_id = ''
@@ -33,40 +31,36 @@ class Untappd:
         self.client_secret = client_secret
         self.base_uri = baseuri
 
-        for endpoint in simple_endpoints:
-            fun = self.__make_simple_endpoint_fun(endpoint)
+        for endpoint in get_endpoints:
+            fun = self.__make_get_endpoint_fun(endpoint)
             setattr(self, endpoint.replace('/', '_'), fun)
-        for endpoint in single_param_endpoints:
-            fun = self.__make_singlearg_endpoint_fun(endpoint)
-            setattr(self, endpoint.replace('/', '_'), fun)
-        for endpoint in simple_endpoints_with_requires:
-            fun = self.__make_simple_with_requires_fun(endpoint)
+        for endpoint in endpoints_with_requires:
+            fun = self.__make_endpoint_with_requires_fun(endpoint)
             setattr(self, endpoint[0].replace('/', '_'), fun)
         for endpoint in post_endpoints:
             fun = self.__make_post_endpoint_fun(endpoint)
             setattr(self, endpoint.replace('/', '_'), fun)
 
-    def __make_simple_endpoint_fun(self, name):
-        def _function(options={}):
-            return self._get('/' + name, options)
+    def __make_get_endpoint_fun(self, name):
+        def _function(id=None, options={}):
+            request = '{}'.format(name)
+            if id:
+                request += '/{}'.format(id)
+            return self._get(request, options)
         return _function
 
-    def __make_singlearg_endpoint_fun(self, name):
-        def _function(id, options={}):
-            return self._get('/' + name + '/' + id, options)
-        return _function
-
-    def __make_simple_with_requires_fun(self, name_and_required):
+    def __make_endpoint_with_requires_fun(self, name_and_required):
         name, required_param = name_and_required
 
         def _function(required_attribute, options={}):
             options.update({required_param: required_attribute})
-            return self._get('/' + name, options)
+            return self._get(name, options)
         return _function
 
     def __make_post_endpoint_fun(self, name):
         def _function(id, options={}):
-            return self._post('/' + name + '/' + id, options)
+            request = '{}/{}'.format(name, id)
+            return self._post(request, options)
         return _function
 
     def _get(self, request, options):
