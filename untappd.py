@@ -23,6 +23,8 @@ class Untappd:
 
     access_token = None
     base_uri = 'http://api.untappd.com/v4'
+    authorize_uri = 'https://untappd.com/oauth/authenticate/'
+    redirect_uri = ''
     client_id = ''
     client_secret = ''
 
@@ -77,5 +79,5 @@ class Untappd:
                         'client_secret': self.client_secret})
         return requests.post(self.base_uri + request, params=options).json()
 
-    def authenticate():
+    def authenticate(self, redirect_uri=redirect_uri):
         pass

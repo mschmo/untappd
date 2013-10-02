@@ -10,3 +10,7 @@ Python wrapper for the Untappd.com API.
 # TODO
 * Add authentication with OAuth to allow authorized calls
 * Limit code duplication
+
+# Dependencies
+* [Requests](http://docs.python-requests.org/en/latest/)
+* [Requests-OAuthlib](https://github.com/requests/requests-oauthlib)
